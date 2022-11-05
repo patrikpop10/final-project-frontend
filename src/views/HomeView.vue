@@ -11,14 +11,7 @@ import {ref, reactive, computed, onMounted, watch} from "vue";
 import DropDown from '@/components/DropDown.vue';
 import CharacterGraph from '@/components/CharacterGraph.vue';
 import {getAllBooks, getSpecificBook} from "@/api/api";
-const options =ref(['Lendas e Narrativas (Tomo I)',  
-"A cidade do vicio", "A Casa dos Fantasmas - Volume II", 
-"Alexandre Herculano","A Morte Vence", 
-"Os tripeiros romance-chronica do seculo XIV", 
-"Noites de insomnia, offerecidas a quem não póde dormir. Nº 08 (de 12)",
-"Viagens na Minha Terra (Volume II)",
-"Comedia do Campo volume III (Scenas do Minho)",
-"Pelos suburbios e visinhanças de Lisboa",
+const options =ref([
 "Os Maias: episodios da vida romantica"
 ]);
 const book = ref({});
@@ -36,6 +29,13 @@ const setSelected = async (val) =>{
   {
     console.log()
   }
-  
+// 'Lendas e Narrativas (Tomo I)',  
+// "A cidade do vicio", "A Casa dos Fantasmas - Volume II", 
+// "Alexandre Herculano","A Morte Vence", 
+// "Os tripeiros romance-chronica do seculo XIV", 
+// "Noites de insomnia, offerecidas a quem não póde dormir. Nº 08 (de 12)",
+// "Viagens na Minha Terra (Volume II)",
+// "Comedia do Campo volume III (Scenas do Minho)",
+// "Pelos suburbios e visinhanças de Lisboa",
 }
 </script>
