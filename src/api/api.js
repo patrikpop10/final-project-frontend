@@ -1,5 +1,6 @@
 const { default: axios } = require("axios");
-const apiPage = "https://books-pp.azurewebsites.net/api";
+//const apiPage = "https://books-pp.azurewebsites.net/api";
+const apiPage = "http://localhost:5154/api";
 export const getAllBooks = () => {
   return axios.get(apiPage + "/getAllBooks");
 };

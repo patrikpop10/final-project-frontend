@@ -1,21 +1,22 @@
 <template>
-  <nav>
-    <keep-alive> 
-      <router-link to="/">Home</router-link>
-    </keep-alive>
-    |
-    <router-link to="/about">About</router-link>
-  </nav>
+
   <router-view/>
 </template>
+<script setup>
+import HomeView from './views/HomeView.vue';
+</script>
 
 <style>
-#app {
+* {
+  color: white !important;
+}
+body{
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  background: #068d9d;
+  background: linear-gradient(180deg, rgba(6,141,157,1) 10%, rgba(0,212,255,1) 100%);
 }
 
 nav {

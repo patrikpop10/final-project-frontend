@@ -1,5 +1,5 @@
 <template>
-    <div class="contianer">
+    
 <div class="body">
     <svg width="auto" height="800" id="canvas" @wheel.prevent="trigger"></svg>
    
@@ -12,7 +12,6 @@
         {{item}}
     </p>
 
-</div>
 </div>
 </template>
 <script setup>
@@ -37,15 +36,24 @@ watch(() => props.characaters, (incoming, prev) => {
     d3.selectAll("circle").remove()
     d3.selectAll("text").remove()
     selected.value = null;
-    render(incoming);
-    
+    render(incoming);    
  });
 const render = (incoming) => {
+    console.log(incoming)
     let svg = d3.select("svg")
- 
     let max = Math.max.apply(Math, incoming.map(c => c.count));
     let min = Math.min.apply(Math, incoming.map(c => c.count));
-    let total = incoming.map(c => c.count).reduce((a, b) => a + b, 0);
+    let totalCharcters = incoming.map(c => c.count).reduce((a, b) => a + b, 0);
+
+    //calculate the total number of interactions between characters removing duplicates
+    let totalInteractions = 0;
+    for (const c of incoming){
+        for(const a in c.adjecencyList){
+            totalInteractions += c.adjecencyList[a];
+        }
+    }
+    totalInteractions = totalInteractions / 2;
+
 
     let nodes = incoming.map(c =>{
         return {name: c.name, value: c.count}
@@ -64,8 +72,8 @@ const render = (incoming) => {
     let simulation = d3.forceSimulation(nodes, 3)
                        .force("link", d3.forceLink(links).id(d => d.name).distance(d => d.value * 30))
                        .force('charge', d3.forceManyBody().strength(-1))
-                       .force('center', d3.forceCenter(650, 300))
-                       .force("collision", d3.forceCollide().radius(9))
+                       .force('center', d3.forceCenter(900, 350))
+                       .force("collision", d3.forceCollide().radius(1))
                 
 
     let link = svg.append("g")
@@ -73,8 +81,16 @@ const render = (incoming) => {
                   .data(links)
                   .enter()
                   .append("line")
-                  .attr("stroke-width", d => d.value / 20)
-                  .attr("stroke", "gray")
+                  // make the line color be a percentage of the total value
+                  .attr("stroke", d => {
+                        if((d.value * 100) / totalInteractions >= 5){
+                            return "#69b7f7"
+                        }
+                        else{
+                            return "#FBFEF9"
+                        }
+                    })
+                    .attr("stroke-opacity", d => d.value / 20)
                   .text(d => d.value)
    
        
@@ -91,20 +107,35 @@ const render = (incoming) => {
 
 
     let circles = textAndNodes.append("circle")
-                              .attr("r", d => (d.value - min) / (max - min))
-                              .attr("fill", _ => "orange")
-                              .attr("stroke", "orange");
+        .attr("r", d => {
+            return Math.log10(d.value);
+
+                              }
+                               )                 //957DAD
+                              .attr("fill", _ => "#F3C178")
+                              .attr("stroke", "black");
 
     let texts = textAndNodes.append('text').text(d =>{
-        if(d.value >= (total / 50)) {
+        if(d.value >= (totalCharcters * 3) / 100) {
             return d.name
         }
-    }).style("color", _ => "green");
+    }).style("fill", _ => "whitesmoke")
+      .style("paint-order", "stroke")
+      .style("stroke", "black")
+      .style("stroke-width", "3.5px")
+      .style("transform", "translate(-11px, -16px)");
     
         
-    simulation.on('tick', _ => {
+    simulation.on('tick', () => {
         textAndNodes.attr("transform", d => "translate(" +d.x +", "+d.y +")")
-        circles.attr('r', d => (d.value - min) / (max - min) * 50);
+        circles.attr('r', d =>{
+                            if (d.value > 50){
+                                return Math.log(d.value) * 2
+                            }
+                            else{
+                            return 5
+                            }
+                        }).each(d => gravity(0.2, d));
         
 
         link.attr('x1', d => d.source.x)
@@ -141,8 +172,8 @@ const dragEnd = (event, d, simulation) => {
     d.fy = null;
 }
 
+
 const  getOffset = (element) =>{
-    debugger;
     var bound = element.getBoundingClientRect();
     var html = document.documentElement;
 
@@ -150,6 +181,20 @@ const  getOffset = (element) =>{
         top: bound.top + window.pageYOffset - html.clientTop,
         left: bound.left + window.pageXOffset - html.clientLeft
     };
+}
+function gravity(alpha, d) {
+  return function() {
+    var angle = Math.atan2(y - d.y, x - d.x); // angle from center
+    var rad = ring(d.radius); // radius of ring of attraction
+
+    // closest point on ring of attraction
+    var rx = x - Math.cos(angle) * rad;
+    var ry = y - Math.sin(angle) * rad;
+
+    // move towards point
+    d.x += (rx - d.x) * alpha;
+    d.y += (ry - d.y) * alpha;
+  };
 }
 
 
@@ -159,25 +204,40 @@ const  getOffset = (element) =>{
 .rect{
     display: inline-block;
     margin: 2px;
-    background-color: orange;
+    background-color: #F3C178;
     color: white;
     padding: 8px;
     width: 100px;
     height: 14;
     text-align: center;
+    color: #69b7f7;
 }
 .body{
-    width: 100%
+    display: flex;
+    margin-left: 10px;
+    margin-right: 10px;
+    max-height: 100%;
+    overflow: auto;
+    background-color: #373F51;
+    border-radius: 3px;
+    box-shadow: #ffffff1a 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, #0000004d 0px 30px 60px -30px;
+
 }
 svg{
-    border: 1px solid black;
+    border-right: none;
 }
 #popup{
-    border: 1px solid blue;
+    border: 1px solid rgb(98, 98, 235);
     position: absolute;
     z-index: 1;
-    background-color: aquamarine;
     padding: 10px;
+}
+.scene{
+    cursor: pointer;
+}
+.text{
+    font-size: 10px;
+    fill: #D64933;
 }
 
 
